@@ -195,7 +195,14 @@
     </div>
 
     <!-- Gizli Dosya Seçme Elemanı -->
-    <input type="file" id="fileInput" accept=".udf,.xml" style="display: none;">
+    <input type="file" id="fileInput" accept=".udf,.xml,.pdf,.docx,.tiff,.tif" style="display: none;">
+
+    <!-- Yükleme Ekranı -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">İşlem Yapılıyor...</div>
+        <div class="loading-subtext" id="loadingSubText">Lütfen bekleyin</div>
+    </div>
 
     <!-- Toast Bildirim Alanı -->
     <div id="toastContainer" class="toast-container"></div>
@@ -275,9 +282,23 @@
     </dialog>
 
     <!-- JavaScript Kütüphaneleri -->
+    <!-- UDF / ZIP -->
     <script src="js/jszip.min.js"></script>
     <script src="js/udf-parser.js"></script>
     <script src="js/udf-generator.js"></script>
+    
+    <!-- DOCX Desteği (Mammoth) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    
+    <!-- PDF Desteği (PDF.js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+
+    <!-- TIFF / OCR Desteği (UTIF & Tesseract) -->
+    <script src="https://cdn.jsdelivr.net/npm/utif@3.0.1/UTIF.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+    <!-- UI & Templates -->
     <script src="js/templates.js"></script>
     <script src="js/editor-ui.js"></script>
 </body>

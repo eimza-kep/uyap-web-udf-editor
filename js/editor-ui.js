@@ -238,25 +238,123 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ==========================================================================
-       Dosya Açma ve Okuma (UDF / XML)
+       Loading Overlay Kontrolleri
        ========================================================================== */
-    async function loadUdfFile(file) {
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const loadingText = document.getElementById("loadingText");
+    const loadingSubText = document.getElementById("loadingSubText");
+
+    function showLoading(text, subtext = "Lütfen bekleyin...") {
+        if (!loadingOverlay) return;
+        loadingText.textContent = text;
+        loadingSubText.textContent = subtext;
+        loadingOverlay.classList.add("active");
+    }
+
+    function hideLoading() {
+        if (!loadingOverlay) return;
+        loadingOverlay.classList.remove("active");
+    }
+
+    /* ==========================================================================
+       Dosya Açma ve Okuma (UDF / XML / DOCX / PDF / TIFF)
+       ========================================================================== */
+    
+    async function parseDocx(file) {
+        if (!window.mammoth) throw new Error("Mammoth kütüphanesi yüklenemedi.");
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await window.mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+        return result.value; // HTML string
+    }
+
+    async function parsePdf(file) {
+        if (!window.pdfjsLib) throw new Error("PDF.js kütüphanesi yüklenemedi.");
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullHtml = "";
+        
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const strings = textContent.items.map(item => item.str);
+            const pageText = strings.join(" ");
+            if (pageText.trim()) {
+                fullHtml += `<p style="text-align: justify; line-height: 1.5; font-family: 'Times New Roman'; font-size: 12pt;">${pageText}</p>`;
+            }
+        }
+        return fullHtml;
+    }
+
+    async function parseTiff(file) {
+        if (!window.UTIF || !window.Tesseract) throw new Error("TIFF/OCR kütüphaneleri yüklenemedi.");
+        
+        const arrayBuffer = await file.arrayBuffer();
+        const ifds = UTIF.decode(arrayBuffer);
+        if (ifds.length === 0) throw new Error("Geçerli bir TIFF dosyası bulunamadı.");
+        
+        UTIF.decodeImage(arrayBuffer, ifds[0]);
+        const rgba = UTIF.toRGBA8(ifds[0]);
+        
+        const canvas = document.createElement("canvas");
+        canvas.width = ifds[0].width;
+        canvas.height = ifds[0].height;
+        const ctx = canvas.getContext("2d");
+        const imageData = ctx.createImageData(canvas.width, canvas.height);
+        imageData.data.set(rgba);
+        ctx.putImageData(imageData, 0, 0);
+
+        // OCR İşlemi
+        const result = await Tesseract.recognize(canvas, 'tur', {
+            logger: m => {
+                if (m.status === "recognizing text") {
+                    loadingSubText.textContent = `%${Math.round(m.progress * 100)} tamamlandı...`;
+                }
+            }
+        });
+        
+        const paragraphs = result.data.text.split('\n\n').filter(p => p.trim());
+        return paragraphs.map(p => `<p style="text-align: justify; line-height: 1.5; font-family: 'Times New Roman'; font-size: 12pt;">${p.replace(/\n/g, '<br>')}</p>`).join('');
+    }
+
+    async function handleIncomingFile(file) {
+        const name = file.name.toLowerCase();
+        let docName = file.name.replace(/\.[^/.]+$/, ""); // Uzantıyı at
+        
         try {
-            showToast("UDF dosyası okunuyor...", "info");
-            const result = await window.UdfParser.parse(file);
-            
-            // Editöre yerleştir
-            editor.innerHTML = result.html;
+            if (name.endsWith(".udf") || name.endsWith(".xml")) {
+                showLoading("UDF/XML İşleniyor", "Dosya parse ediliyor...");
+                const result = await window.UdfParser.parse(file);
+                editor.innerHTML = result.html;
+            } 
+            else if (name.endsWith(".docx")) {
+                showLoading("DOCX İşleniyor", "Word belgesi dönüştürülüyor...");
+                const html = await parseDocx(file);
+                editor.innerHTML = html || "<p><br></p>";
+            }
+            else if (name.endsWith(".pdf")) {
+                showLoading("PDF İşleniyor", "Metin katmanları çıkarılıyor...");
+                const html = await parsePdf(file);
+                editor.innerHTML = html || "<p><br></p>";
+            }
+            else if (name.endsWith(".tiff") || name.endsWith(".tif")) {
+                showLoading("TIFF OCR İşleniyor", "Tesseract AI modeli yükleniyor ve metin okunuyor. Bu işlem birkaç dakika sürebilir...");
+                const html = await parseTiff(file);
+                editor.innerHTML = html || "<p><br></p>";
+            }
+            else {
+                showToast("Desteklenmeyen dosya formatı. Lütfen .udf, .docx, .pdf veya .tiff yükleyin.", "error");
+                return;
+            }
 
-            // Belge adını güncelle
-            let docName = file.name.replace(/\.(udf|xml)$/i, "");
             docTitleInput.value = docName;
-
             updateStats();
-            showToast(`"${file.name}" başarıyla açıldı.`, "success");
+            hideLoading();
+            showToast(`"${file.name}" başarıyla aktarıldı.`, "success");
+            
         } catch (err) {
-            console.error("UDF Açma Hatası:", err);
-            showToast("UDF dosyası açılamadı: " + err.message, "error");
+            console.error("Dosya Açma Hatası:", err);
+            hideLoading();
+            showToast(`Hata: ${err.message}`, "error");
         }
     }
 
@@ -266,7 +364,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnOpenFile.addEventListener("click", () => fileInput.click());
         fileInput.addEventListener("change", (e) => {
             if (e.target.files && e.target.files.length > 0) {
-                loadUdfFile(e.target.files[0]);
+                handleIncomingFile(e.target.files[0]);
                 fileInput.value = "";
             }
         });
@@ -299,12 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
         dropOverlay.classList.remove("active");
 
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            const file = e.dataTransfer.files[0];
-            if (file.name.toLowerCase().endsWith(".udf") || file.name.toLowerCase().endsWith(".xml")) {
-                loadUdfFile(file);
-            } else {
-                showToast("Lütfen geçerli bir .udf veya .xml dosyası bırakın.", "error");
-            }
+            handleIncomingFile(e.dataTransfer.files[0]);
         }
     });
 
