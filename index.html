@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UYAP Web UDF Editörü - Java'sız Çevrimdışı UDF Görüntüleyici ve Düzenleyici</title>
+    <meta name="description" content="Tarayıcı üzerinde Java gerektirmeden çalışan, %100 yerel ve gizli UYAP UDF doküman editörü. UDF dosyalarını açın, düzenleyin, PDF ve UDF formatında kaydedin.">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="css/editor.css">
+</head>
+<body>
+
+    <!-- Uygulama Başlığı ve Üst Bar -->
+    <header class="app-header">
+        <div class="header-left">
+            <div class="app-logo">
+                <i class="ph-fill ph-scales" style="font-size: 1.4rem; color: #60a5fa;"></i>
+                <span>UYAP Web UDF</span>
+                <span class="badge">v1.1</span>
+            </div>
+
+            <div class="doc-title-wrapper" title="Belge Adını Düzenle">
+                <input type="text" id="docTitleInput" class="doc-title-input" value="Dava_Dilekcesi" placeholder="Belge Adı">
+                <span class="doc-ext">.udf</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="privacy-badge" title="Tüm işlemler cihazınızda çalışır, hiçbir veri sunucuya gönderilmez.">
+                <i class="ph-fill ph-shield-check"></i>
+                <span>%100 İstemci Taraflı & Çevrimdışı</span>
+            </div>
+            <button class="btn-header" id="btnAbout" title="Uygulama Hakkında Bilgi">
+                <i class="ph ph-info"></i>
+                <span>Hakkında</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Şerit Araç Çubuğu (Ribbon Toolbar) -->
+    <section class="toolbar-ribbon">
+        <!-- 1. Satır: Dosya ve Genel Eylemler -->
+        <div class="toolbar-row">
+            <button class="action-btn secondary" id="btnOpenFile" title="Bilgisayarınızdan bir UDF veya XML dosyası açın (Ctrl+O)">
+                <i class="ph ph-folder-open"></i>
+                <span>Dosya Aç</span>
+            </button>
+            <button class="action-btn secondary" id="btnNewDoc" title="Boş bir sayfa aç">
+                <i class="ph ph-file-plus"></i>
+                <span>Yeni</span>
+            </button>
+            <button class="action-btn secondary" id="btnOpenTemplates" title="Hazır dava, itiraz ve mazeret dilekçeleri">
+                <i class="ph ph-files"></i>
+                <span>Hazır Şablonlar</span>
+            </button>
+
+            <div class="toolbar-divider"></div>
+
+            <button class="action-btn success" id="btnExportUdf" title="Resmi UYAP uyumlu UDF formatında indir (Ctrl+S)">
+                <i class="ph ph-download-simple"></i>
+                <span>UDF İndir</span>
+            </button>
+            <button class="action-btn primary" id="btnPrintPdf" title="A4 boyutunda PDF olarak kaydet veya yazdır (Ctrl+P)">
+                <i class="ph ph-printer"></i>
+                <span>PDF / Yazdır</span>
+            </button>
+            <button class="action-btn secondary" id="btnExportTxt" title="Düz metin (.txt) olarak indir">
+                <i class="ph ph-file-text"></i>
+                <span>Metin (.txt)</span>
+            </button>
+        </div>
+
+        <!-- 2. Satır: Metin Biçimlendirme & Düzenleme -->
+        <div class="toolbar-row">
+            <!-- Geri / İleri Al -->
+            <div class="toolbar-group">
+                <button class="tool-btn" data-command="undo" title="Geri Al (Ctrl+Z)"><i class="ph ph-arrow-u-up-left"></i></button>
+                <button class="tool-btn" data-command="redo" title="Yinele (Ctrl+Y)"><i class="ph ph-arrow-u-up-right"></i></button>
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <!-- Font Ailesi & Boyutu -->
+            <div class="toolbar-group">
+                <select id="fontSelect" class="tool-select" title="Yazı Tipi">
+                    <option value="Times New Roman" selected>Times New Roman (UYAP Standart)</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Calibri">Calibri</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Tahoma">Tahoma</option>
+                </select>
+
+                <select id="fontSizeSelect" class="tool-select" title="Yazı Boyutu">
+                    <option value="10pt">10 pt</option>
+                    <option value="11pt">11 pt</option>
+                    <option value="12pt" selected>12 pt (UYAP Standart)</option>
+                    <option value="14pt">14 pt (Başlık)</option>
+                    <option value="16pt">16 pt</option>
+                    <option value="18pt">18 pt</option>
+                </select>
+            </div>
+
+            <!-- Kalın, İtalik, Altı Çizili, Üstü Çizili -->
+            <div class="toolbar-group">
+                <button class="tool-btn" data-command="bold" title="Kalın (Ctrl+B)"><b>B</b></button>
+                <button class="tool-btn" data-command="italic" title="İtalik (Ctrl+I)"><i>I</i></button>
+                <button class="tool-btn" data-command="underline" title="Altı Çizili (Ctrl+U)"><u>U</u></button>
+                <button class="tool-btn" data-command="strikeThrough" title="Üstü Çizili"><s>S</s></button>
+                
+                <!-- Renk Seçici -->
+                <div class="color-picker-wrapper" title="Yazı Rengi">
+                    <button class="tool-btn" style="position: relative;">
+                        <span>A</span>
+                        <span id="colorSwatch" class="color-swatch"></span>
+                    </button>
+                    <input type="color" id="textColorInput" class="color-input" value="#000000">
+                </div>
+            </div>
+
+            <!-- Hizalama Seçenekleri -->
+            <div class="toolbar-group">
+                <button class="tool-btn" data-command="justifyLeft" title="Sola Hizala"><i class="ph ph-text-align-left"></i></button>
+                <button class="tool-btn" data-command="justifyCenter" title="Ortala"><i class="ph ph-text-align-center"></i></button>
+                <button class="tool-btn" data-command="justifyRight" title="Sağa Hizala"><i class="ph ph-text-align-right"></i></button>
+                <button class="tool-btn active" data-command="justifyFull" title="İki Yana Yasla (UYAP Standart)"><i class="ph ph-text-align-justify"></i></button>
+            </div>
+
+            <!-- Satır Aralığı ve Girinti -->
+            <div class="toolbar-group">
+                <select id="lineSpacingSelect" class="tool-select" title="Satır Aralığı">
+                    <option value="1.0">1.0 Satır</option>
+                    <option value="1.15">1.15 Satır</option>
+                    <option value="1.5" selected>1.5 Satır (Standart)</option>
+                    <option value="2.0">2.0 Satır</option>
+                </select>
+                <button class="tool-btn" id="btnIndent" title="UYAP Paragraf Girintisi (1.5 cm)"><i class="ph ph-text-indent"></i> Girinti</button>
+            </div>
+
+            <!-- Listeler ve Tablo -->
+            <div class="toolbar-group">
+                <button class="tool-btn" data-command="insertUnorderedList" title="Madde İşaretli Liste"><i class="ph ph-list-bullets"></i> Liste</button>
+                <button class="tool-btn" data-command="insertOrderedList" title="Numaralı Liste"><i class="ph ph-list-numbers"></i> Liste</button>
+                <button class="tool-btn" id="btnOpenTableModal" title="Tablo Ekle"><i class="ph ph-table"></i> Tablo</button>
+            </div>
+
+            <!-- Biçimi Temizle -->
+            <div class="toolbar-group">
+                <button class="tool-btn" data-command="removeFormat" title="Biçimlendirmeyi Temizle"><i class="ph ph-eraser"></i> Temizle</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- A4 Çalışma Alanı (Viewport) -->
+    <main class="editor-viewport">
+        <div class="page-wrapper" id="pageWrapper">
+            <!-- Düzenlenebilir Gerçek A4 Sayfası -->
+            <div id="udfEditor" class="udf-page" contenteditable="true" spellcheck="false"></div>
+        </div>
+    </main>
+
+    <!-- Durum Çubuğu (Status Bar) -->
+    <footer class="app-statusbar">
+        <div class="statusbar-left">
+            <span id="charCount">0 karakter</span>
+            <span>•</span>
+            <span id="wordCount">0 kelime</span>
+            <span>•</span>
+            <span>Sayfa: A4 (210 x 297 mm)</span>
+        </div>
+
+        <div class="statusbar-right">
+            <span><i class="ph-fill ph-lock-key"></i> KVKK / Gizlilik Uyumlu: Tüm veriler yerel bellekte işlenir.</span>
+            <span>•</span>
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="btnZoomOut" title="Uzaklaştır"><i class="ph ph-minus"></i></button>
+                <span id="zoomLevel">100%</span>
+                <button class="zoom-btn" id="btnZoomIn" title="Yakınlaştır"><i class="ph ph-plus"></i></button>
+                <button class="zoom-btn" id="btnZoomReset" title="Varsayılan Boyut"><i class="ph ph-arrow-counter-clockwise"></i></button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Sürükle Bırak Katmanı -->
+    <div id="dropOverlay" class="drop-overlay">
+        <div class="drop-box">
+            <div class="drop-icon"><i class="ph ph-download-simple" style="font-size: 3.5rem;"></i></div>
+            <h2>UDF Dosyasını Buraya Bırakın</h2>
+            <p>Dosyanız tarayıcınızda çözülüp anında düzenlenebilir hale gelecektir.</p>
+        </div>
+    </div>
+
+    <!-- Gizli Dosya Seçme Elemanı -->
+    <input type="file" id="fileInput" accept=".udf,.xml" style="display: none;">
+
+    <!-- Toast Bildirim Alanı -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Modallar -->
+    <!-- 1. Şablon Seçim Modalı -->
+    <dialog id="templateModal" class="modal">
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="ph ph-files"></i>
+                <span>Hazır Dilekçe Şablonları</span>
+            </div>
+            <button class="modal-close" data-close-modal title="Kapat"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">
+                Aşağıdaki hazır şablonlardan birini seçerek hızlıca resmi dilekçenizi oluşturabilirsiniz. Şablon yüklendiğinde mevcut metniniz değişecektir.
+            </p>
+            <div class="template-grid" id="templateListContainer"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="action-btn secondary" data-close-modal>Vazgeç</button>
+        </div>
+    </dialog>
+
+    <!-- 2. Tablo Ekleme Modalı -->
+    <dialog id="tableModal" class="modal">
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="ph ph-table"></i>
+                <span>Tablo Ekle</span>
+            </div>
+            <button class="modal-close" data-close-modal title="Kapat"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="tableRows">Satır Sayısı:</label>
+                <input type="number" id="tableRows" class="form-input" min="1" max="50" value="3">
+            </div>
+            <div class="form-group">
+                <label for="tableCols">Sütun Sayısı:</label>
+                <input type="number" id="tableCols" class="form-input" min="1" max="10" value="3">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="action-btn secondary" data-close-modal>İptal</button>
+            <button class="action-btn primary" id="btnInsertTable">Tabloyu Ekle</button>
+        </div>
+    </dialog>
+
+    <!-- 3. Hakkında Modalı -->
+    <dialog id="aboutModal" class="modal">
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="ph-fill ph-scales"></i>
+                <span>UYAP Web UDF Editörü Hakkında</span>
+            </div>
+            <button class="modal-close" data-close-modal title="Kapat"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="modal-body" style="line-height: 1.6; font-size: 0.9rem;">
+            <h4 style="color: #1e40af; margin-bottom: 8px;">Java Bağımsızlığı ve %100 Gizlilik</h4>
+            <p style="margin-bottom: 12px;">
+                Resmi Adalet Bakanlığı UYAP Doküman Editörü geleneksel olarak Java JRE kurulumuna ihtiyaç duyar. Bu açık kaynaklı web projesi, <b>herhangi bir eklenti veya Java gerektirmeksizin</b> doğrudan modern tarayıcılarda (Chrome, Firefox, Safari, Edge) <code>.udf</code> formatını açmanızı, düzenlemenizi ve UYAP ile tam uyumlu olarak yeniden kaydetmenizi sağlar.
+            </p>
+            <h4 style="color: #1e40af; margin-bottom: 8px;">Gizlilik ve KVKK Güvencesi</h4>
+            <p style="margin-bottom: 12px;">
+                UDF dosyalarınız ve yazdığınız dilekçe içerikleri hiçbir uzak sunucuya veya buluta yüklenmez. Tüm ZIP açma, XML ayrıştırma ve şifreleme işlemleri <b>istemci tarafında (tarayıcınızın kendi belleğinde)</b> gerçekleşir. İnternet bağlantınız olmasa dahi bu sayfayı çevrimdışı (offline) kullanabilirsiniz.
+            </p>
+            <h4 style="color: #1e40af; margin-bottom: 8px;">UYAP Uyumluluğu</h4>
+            <p>
+                Oluşturulan <code>.udf</code> paketleri, resmi UYAP Avukat Portalı ve Vatandaş Portalı standartlarına tam uyumlu XML hiyerarşisinde sıkıştırılarak sunulur. E-İmza ile imzalanmaya hazırdır.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="action-btn primary" data-close-modal>Kapat</button>
+        </div>
+    </dialog>
+
+    <!-- JavaScript Kütüphaneleri -->
+    <script src="js/jszip.min.js"></script>
+    <script src="js/udf-parser.js"></script>
+    <script src="js/udf-generator.js"></script>
+    <script src="js/templates.js"></script>
+    <script src="js/editor-ui.js"></script>
+</body>
+</html>

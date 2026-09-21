@@ -1,0 +1,704 @@
+/* ==========================================================================
+   UYAP Web UDF Editörü - Modern CSS
+   ========================================================================== */
+
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: #eff6ff;
+    --success: #10b981;
+    --success-hover: #059669;
+    --bg-main: #f3f4f6;
+    --bg-surface: #ffffff;
+    --bg-page-area: #e5e7eb;
+    --border-color: #e5e7eb;
+    --border-light: #f3f4f6;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-page: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --radius: 8px;
+    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-ui);
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   Header & Top Navigation
+   ========================================================================== */
+.app-header {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+    z-index: 10;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.app-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--text-main);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+}
+
+.app-logo span.badge {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.doc-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.doc-title-wrapper:hover {
+    background: var(--bg-main);
+    border-color: var(--border-color);
+}
+
+.doc-title-input {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    font-weight: 500;
+    outline: none;
+    width: 200px;
+    font-family: var(--font-ui);
+}
+
+.doc-title-input:focus {
+    width: 260px;
+}
+
+.doc-ext {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    user-select: none;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.privacy-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-hover);
+    padding: 6px 12px;
+    border-radius: 9999px;
+    font-weight: 600;
+}
+
+.btn-header {
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+}
+
+.btn-header:hover {
+    background: var(--bg-main);
+    color: var(--text-main);
+}
+
+/* ==========================================================================
+   Ribbon Toolbar
+   ========================================================================== */
+.toolbar-ribbon {
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+    padding: 6px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: var(--shadow-sm);
+    z-index: 9;
+}
+
+.toolbar-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: #f1f5f9;
+    padding: 2px 4px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+}
+
+.toolbar-divider {
+    width: 1px;
+    height: 22px;
+    background: var(--border-color);
+    margin: 0 4px;
+}
+
+.tool-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    transition: all 0.15s ease;
+}
+
+.tool-btn:hover {
+    background: #e2e8f0;
+    color: var(--primary);
+}
+
+.tool-btn.active {
+    background: #dbeafe;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.tool-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.tool-select {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    padding: 4px 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+    font-family: var(--font-ui);
+    height: 28px;
+    border-radius: 4px;
+}
+
+.tool-select:hover, .tool-select:focus {
+    background: #e2e8f0;
+}
+
+.action-btn {
+    border: none;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+}
+
+.action-btn.primary {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.action-btn.primary:hover {
+    background: var(--primary-hover);
+}
+
+.action-btn.success {
+    background: var(--success);
+    color: #ffffff;
+}
+
+.action-btn.success:hover {
+    background: var(--success-hover);
+}
+
+.action-btn.secondary {
+    background: #e2e8f0;
+    color: var(--text-main);
+}
+
+.action-btn.secondary:hover {
+    background: #cbd5e1;
+}
+
+.color-picker-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.color-input {
+    position: absolute;
+    opacity: 0;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+}
+
+.color-swatch {
+    width: 14px;
+    height: 3px;
+    background-color: #000000;
+    position: absolute;
+    bottom: 3px;
+    left: calc(50% - 7px);
+    border-radius: 1px;
+}
+
+/* ==========================================================================
+   Editor Viewport & A4 Simulation
+   ========================================================================== */
+.editor-viewport {
+    flex: 1;
+    background-color: var(--bg-page-area);
+    overflow-y: auto;
+    overflow-x: auto;
+    padding: 30px 20px 60px 20px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.page-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    transform-origin: top center;
+    transition: transform 0.15s ease;
+}
+
+/* A4 dimensions: 210mm x 297mm */
+.udf-page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 25mm 25mm 25mm 25mm; /* Standard UYAP Margins */
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-page);
+    box-sizing: border-box;
+    outline: none;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12pt;
+    line-height: 1.5;
+    color: #000000;
+    text-align: justify;
+    word-break: break-word;
+    position: relative;
+}
+
+/* Page Guide Margins indicator (Subtle on screen, hidden on print) */
+.udf-page::before {
+    content: '';
+    position: absolute;
+    top: 25mm;
+    left: 25mm;
+    right: 25mm;
+    bottom: 25mm;
+    border: 1px dashed rgba(203, 213, 225, 0.4);
+    pointer-events: none;
+}
+
+.udf-page p {
+    margin-bottom: 0.8rem;
+}
+
+.udf-page table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.udf-page th,
+.udf-page td {
+    border: 1px solid #334155;
+    padding: 6px 10px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.udf-page th {
+    background-color: #f1f5f9;
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   Bottom Status Bar
+   ========================================================================== */
+.app-statusbar {
+    background-color: var(--bg-surface);
+    border-top: 1px solid var(--border-color);
+    padding: 4px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    user-select: none;
+    z-index: 10;
+}
+
+.statusbar-left, .statusbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.zoom-btn {
+    background: #e2e8f0;
+    border: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.8rem;
+    color: var(--text-main);
+}
+
+.zoom-btn:hover {
+    background: #cbd5e1;
+}
+
+/* ==========================================================================
+   Drag & Drop Overlay
+   ========================================================================== */
+.drop-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(30, 64, 175, 0.85);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.drop-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.drop-box {
+    border: 3px dashed rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    padding: 40px 60px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.drop-icon {
+    font-size: 3.5rem;
+    margin-bottom: 12px;
+}
+
+/* ==========================================================================
+   Modern Native <dialog> Modal Styles
+   ========================================================================== */
+dialog.modal {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    padding: 0;
+    max-width: 600px;
+    width: 90%;
+    margin: auto;
+    color: var(--text-main);
+    background: var(--bg-surface);
+}
+
+dialog.modal::backdrop {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(2px);
+}
+
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.modal-close:hover {
+    background: #e2e8f0;
+    color: var(--text-main);
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.template-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.template-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+}
+
+.template-card:hover {
+    border-color: var(--primary);
+    background: #eff6ff;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.template-info h4 {
+    font-size: 0.95rem;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+
+.template-info p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--text-main);
+}
+
+.form-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    outline: none;
+    font-family: var(--font-ui);
+}
+
+.form-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #f8fafc;
+}
+
+/* ==========================================================================
+   Toast Notification
+   ========================================================================== */
+.toast-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.toast {
+    background: #1e293b;
+    color: #ffffff;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: toastIn 0.25s ease-out;
+    pointer-events: auto;
+}
+
+.toast.success {
+    background: #065f46;
+    border-left: 4px solid #10b981;
+}
+
+.toast.error {
+    background: #991b1b;
+    border-left: 4px solid #ef4444;
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   Print Styles (PDF Export Simulation)
+   ========================================================================== */
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 20mm 20mm 20mm 20mm;
+    }
+
+    body, html {
+        background: #ffffff !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .app-header,
+    .toolbar-ribbon,
+    .app-statusbar,
+    .drop-overlay,
+    .toast-container,
+    dialog.modal {
+        display: none !important;
+    }
+
+    .editor-viewport {
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+        overflow: visible !important;
+        display: block !important;
+    }
+
+    .page-wrapper {
+        transform: none !important;
+        gap: 0 !important;
+    }
+
+    .udf-page {
+        width: 100% !important;
+        min-height: auto !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: #ffffff !important;
+    }
+
+    .udf-page::before {
+        display: none !important;
+    }
+}
