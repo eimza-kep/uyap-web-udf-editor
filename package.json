@@ -1,0 +1,23 @@
+{
+  "name": "uyap-web-udf-editor",
+  "version": "1.2.0",
+  "description": "100% tarayıcı tabanlı, Java gerektirmeyen açık kaynak UYAP UDF editörü ve PDF/DOCX/TIFF içe aktarıcı",
+  "main": "index.html",
+  "scripts": {
+    "test": "node test/test-udf.js"
+  },
+  "keywords": [
+    "uyap",
+    "udf",
+    "editor",
+    "legaltech",
+    "turkey",
+    "javascript"
+  ],
+  "author": "eimza-kep",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eimza-kep/uyap-web-udf-editor.git"
+  }
+}

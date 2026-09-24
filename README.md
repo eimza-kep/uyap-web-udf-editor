@@ -1,26 +1,47 @@
 # UYAP Web UDF Editörü (Java'sız & Çevrimdışı)
 
-UYAP Doküman Editörü (.udf) dosyalarını bilgisayarınıza herhangi bir Java (JRE) kurulumu, eklenti veya harici sunucuya ihtiyaç duymadan **doğrudan web tarayıcınızda açan, düzenleyen, PDF ve UDF olarak kaydeden** %100 istemci taraflı (client-side) açık kaynaklı editördür.
+[![Deploy to GitHub Pages](https://github.com/eimza-kep/uyap-web-udf-editor/actions/workflows/deploy.yml/badge.svg)](https://github.com/eimza-kep/uyap-web-udf-editor/actions/workflows/deploy.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Zero Server](https://img.shields.io/badge/Server-Zero%20(Client%20Side)-success.svg)](index.html)
+[![Formats: UDF, PDF, DOCX, TIFF](https://img.shields.io/badge/Formats-UDF%20%7C%20PDF%20%7C%20DOCX%20%7C%20TIFF-orange.svg)](index.html)
 
-## 🌟 Neden Bu Proje?
-Mevcut UYAP Editörü Java gerektirir ve bu durum özellikle güncel macOS / Windows işletim sistemlerinde güvenlik uyarılarına, sürüm çakışmalarına ve yavaşlıklara neden olmaktadır. Bu proje, tüm UDF paketleme ve ayrıştırma işlemlerini `JSZip` ve `DOMParser` kullanarak **doğrudan tarayıcınızda (offline) yapar**.
+UYAP Doküman Editörü (`.udf`) dosyalarını bilgisayarınıza herhangi bir Java (JRE) kurulumu, eklenti veya harici sunucuya ihtiyaç duymadan **doğrudan web tarayıcınızda açan, düzenleyen, PDF, DOCX ve TIFF (OCR) içe aktaran ve UDF olarak kaydeden** %100 istemci taraflı (client-side) açık kaynaklı editördür.
 
-## 🔒 Gizlilik (KVKK) Güvencesi
-- İnternet bağlantısı olmadan da çalışır.
+🌐 **Canlı Demo:** [eimza-kep.github.io/uyap-web-udf-editor](https://eimza-kep.github.io/uyap-web-udf-editor/)
+
+---
+
+## 🌟 Öne Çıkan Özellikler
+
+- **Java'ya Veda:** Java (JRE) kurulumu gerekmez; modern tarayıcılarda (Chrome, Firefox, Safari, Edge) sıfır gecikmeyle çalışır.
+- **Çoklu Format Desteği:**
+  - **UDF (.udf):** UYAP 1.8 standartlarında açma ve kaydetme
+  - **DOCX (.docx):** Microsoft Word belgelerini içe aktarma (`mammoth.js`)
+  - **PDF (.pdf):** PDF metinlerini sayfalar halinde editöre yükleme (`pdf.js`)
+  - **TIFF / Görsel (.tiff, .tif):** Taranmış adliye evrakları için tarayıcı içi yerel OCR metin tanıma (`Tesseract.js` + `UTIF.js`)
+- **Şablon Kütüphanesi:** Dava dilekçesi, cevap dilekçesi, tensip zaptı vb. hazır resmi şablonlar.
+- **A4 Sayfa Simülasyonu:** Gerçek kenar boşlukları (sayfa marjinleri) ve sayfa düzeni.
+
+## 🔒 Gizlilik & KVKK Güvencesi
+- **%100 Çevrimdışı (Offline):** İnternet bağlantınızı kapatsanız dahi eksiksiz çalışır.
 - Açtığınız dilekçeler ve UDF dosyaları **hiçbir uzak sunucuya veya buluta yüklenmez**.
-- İşlemler, bilgisayarınızın kendi belleğinde (RAM) şifrelenir ve çözülür.
+- Tüm işlemler bilgisayarınızın kendi belleğinde (RAM) yapılır.
 
-## 🚀 Kullanım
-Projeyi bilgisayarınıza indirin ve `index.html` dosyasına çift tıklayın:
-1. Sürükle - Bırak yöntemiyle `belge.udf` dosyanızı açın.
-2. Dilekçenizi düzenleyin.
-3. **UDF İndir** veya **PDF / Yazdır** butonuyla kaydedin.
+## ⌨️ Kısayol Tuşları
+
+| Kısayol | İşlev |
+|---------|-------|
+| `Ctrl + S` | UDF Dosyası Olarak İndir |
+| `Ctrl + P` | Yazdır / PDF Olarak Kaydet |
+| `Ctrl + B` | Kalın (Bold) |
+| `Ctrl + I` | İtalik (Italic) |
+| `Ctrl + U` | Altı Çizili (Underline) |
 
 ## 🛠️ Teknolojiler
-- HTML5 & CSS3 (Modern ve duyarlı arayüz)
-- Vanilla JavaScript (Ek framework kullanılmadı)
+- HTML5 & CSS3 (Phosphor Icons + Inter tipografisi)
+- Vanilla JavaScript (Hafif ve hızlı)
 - JSZip (UDF formatını oluşturan ZIP arşivini yönetmek için)
-- Phosphor Icons & Inter (Modern web tipografisi ve ikonlar)
+- PDF.js, Mammoth.js, Tesseract.js (İçe aktarma ve OCR)
 
 ## 📄 Lisans
-MIT License - Açık kaynaklı ve ücretsizdir. Adalet Bakanlığı ile resmi bir bağı yoktur, bağımsız geliştirilmiştir.
+MIT License — Açık kaynaklı ve ücretsizdir. Adalet Bakanlığı ile resmi bir bağı yoktur, bağımsız geliştirilmiştir.
