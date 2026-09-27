@@ -43,5 +43,19 @@ UYAP Doküman Editörü (`.udf`) dosyalarını bilgisayarınıza herhangi bir Ja
 - JSZip (UDF formatını oluşturan ZIP arşivini yönetmek için)
 - PDF.js, Mammoth.js, Tesseract.js (İçe aktarma ve OCR)
 
+## 🌐 LegalTech & E-Dönüşüm Açık Kaynak Ekosistemi
+
+Bu editör, [@eimza-kep](https://github.com/eimza-kep) açık kaynak ekosisteminin tarayıcı tabanlı LegalTech bileşenidir. İlgili diğer araçlarımız:
+
+* 📄 [udf2md](https://github.com/eimza-kep/udf2md) - UYAP `.udf` dosyalarını Node.js CLI ve RAG boru hatları için Markdown ve JSON formatına dönüştürücü.
+* 🛠️ [uyap-editor-hizli-onarim](https://github.com/eimza-kep/uyap-editor-hizli-onarim) - Masaüstü resmi UYAP Editör donma, açılmama, Java bellek ve önbellek onarım asistanı.
+* ⚖️ [avukat-hukuk-excel-hesaplamalari](https://github.com/eimza-kep/avukat-hukuk-excel-hesaplamalari) - Avukatlar için AAÜT vekalet ücreti, arabuluculuk ve icra takip şablonları.
+* 🤖 [turkiye-yapay-zeka-araclari](https://github.com/eimza-kep/turkiye-yapay-zeka-araclari) - Dava hafızası, içtihat özetleme ve dilekçe mimarı yapay zeka araçları.
+* 🌟 [awesome-turkiye-e-donusum](https://github.com/eimza-kep/awesome-turkiye-e-donusum) - Türkiye e-Dönüşüm açık kaynak araçları ve kütüphaneleri kürasyonu.
+
+---
+
 ## 📄 Lisans
+
 MIT License — Açık kaynaklı ve ücretsizdir. Adalet Bakanlığı ile resmi bir bağı yoktur, bağımsız geliştirilmiştir.
+
