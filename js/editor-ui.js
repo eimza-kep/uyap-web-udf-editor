@@ -554,8 +554,37 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Başlangıç: Dava dilekçesi şablonunu varsayılan olarak yükle
-    if (window.LegalTemplates && window.LegalTemplates.davaDilekcesi) {
+    /* ==========================================================================
+       Otomatik Yerel Taslak Kaydı (LocalStorage Auto-Save)
+       ========================================================================== */
+    const AUTOSAVE_KEY = "uyap_web_editor_draft_html";
+    const AUTOSAVE_TITLE = "uyap_web_editor_draft_title";
+
+    let autoSaveTimer = null;
+    editor.addEventListener("input", () => {
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(() => {
+            try {
+                if (editor.innerText.trim().length > 0) {
+                    localStorage.setItem(AUTOSAVE_KEY, editor.innerHTML);
+                    localStorage.setItem(AUTOSAVE_TITLE, docTitleInput.value);
+                }
+            } catch (err) {
+                console.warn("Otomatik kayıt hatası:", err);
+            }
+        }, 1500);
+    });
+
+    // Başlangıç: Varsa yerel taslağı yükle veya varsayılan şablonu getir
+    const savedDraft = localStorage.getItem(AUTOSAVE_KEY);
+    const savedTitle = localStorage.getItem(AUTOSAVE_TITLE);
+
+    if (savedDraft && savedDraft.trim().length > 20) {
+        editor.innerHTML = savedDraft;
+        if (savedTitle) docTitleInput.value = savedTitle;
+        updateStats();
+        showToast("Önceki oturumdaki taslağınız yerel hafızadan geri yüklendi.", "info");
+    } else if (window.LegalTemplates && window.LegalTemplates.davaDilekcesi) {
         editor.innerHTML = window.LegalTemplates.davaDilekcesi.html;
         docTitleInput.value = "Dava_Dilekcesi";
         updateStats();
