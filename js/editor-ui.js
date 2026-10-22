@@ -448,6 +448,53 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Markdown İndir (.md - Issue #2)
+    const btnExportMd = document.getElementById("btnExportMd");
+    if (btnExportMd) {
+        btnExportMd.addEventListener("click", () => {
+            if (typeof UdfMarkdown === "undefined") {
+                showToast("Markdown dönüştürücü modülü yüklenemedi.", "error");
+                return;
+            }
+            const md = UdfMarkdown.htmlToMarkdown(editor);
+            const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+            const filename = (docTitleInput.value.trim() || "belge") + ".md";
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+            showToast(`"${filename}" Markdown (.md) olarak indirildi.`, "success");
+        });
+    }
+
+    // RAG JSON İndir (LLM Entegrasyonu - Issue #2)
+    const btnExportRagJson = document.getElementById("btnExportRagJson");
+    if (btnExportRagJson) {
+        btnExportRagJson.addEventListener("click", () => {
+            if (typeof UdfMarkdown === "undefined") {
+                showToast("Dönüştürücü modülü yüklenemedi.", "error");
+                return;
+            }
+            const docTitle = docTitleInput.value.trim() || "Dava_Dilekcesi";
+            const ragData = UdfMarkdown.htmlToRagJson(editor, docTitle);
+            const blob = new Blob([JSON.stringify(ragData, null, 2)], { type: "application/json;charset=utf-8" });
+            const filename = docTitle + "-rag.json";
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+            showToast(`"${filename}" LLM/RAG JSON formatında indirildi.`, "success");
+        });
+    }
+
     // Yeni Belge
     const btnNewDoc = document.getElementById("btnNewDoc");
     if (btnNewDoc) {
@@ -460,6 +507,48 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    /* ==========================================================================
+       Karanlık / Aydınlık Mod (Theme Toggle - Issue #4)
+       ========================================================================== */
+    const btnToggleTheme = document.getElementById("btnToggleTheme");
+    const themeIcon = document.getElementById("themeIcon");
+    const themeText = document.getElementById("themeText");
+
+    function applyTheme(theme) {
+        if (theme === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+            document.body.classList.add("dark-mode");
+            if (themeIcon) themeIcon.className = "ph ph-sun";
+            if (themeText) themeText.textContent = "Aydınlık Mod";
+        } else {
+            document.documentElement.removeAttribute("data-theme");
+            document.body.classList.remove("dark-mode");
+            if (themeIcon) themeIcon.className = "ph ph-moon";
+            if (themeText) themeText.textContent = "Karanlık Mod";
+        }
+        try {
+            localStorage.setItem("udf_theme", theme);
+        } catch (e) {}
+    }
+
+    function initTheme() {
+        let savedTheme = null;
+        try {
+            savedTheme = localStorage.getItem("udf_theme");
+        } catch (e) {}
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        applyTheme(savedTheme || (prefersDark ? "dark" : "light"));
+    }
+
+    if (btnToggleTheme) {
+        btnToggleTheme.addEventListener("click", () => {
+            const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+            applyTheme(current === "dark" ? "light" : "dark");
+        });
+    }
+
+    initTheme();
 
     /* ==========================================================================
        Hazır Şablonlar Modalı
@@ -550,6 +639,9 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (e.key === "p" || e.key === "P") {
                 // Varsayılan print zaten çalışır ama temizlemek için
                 // window.print()
+            } else if ((e.altKey || e.shiftKey) && (e.key === "d" || e.key === "D")) {
+                e.preventDefault();
+                if (btnToggleTheme) btnToggleTheme.click();
             }
         }
     });

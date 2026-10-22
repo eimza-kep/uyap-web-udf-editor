@@ -31,6 +31,10 @@
         </div>
 
         <div class="header-right">
+            <button class="btn-header" id="btnToggleTheme" title="Karanlık / Aydınlık Mod (Ctrl+Alt+D)">
+                <i class="ph ph-moon" id="themeIcon"></i>
+                <span id="themeText">Karanlık Mod</span>
+            </button>
             <div class="privacy-badge" title="Tüm işlemler cihazınızda çalışır, hiçbir veri sunucuya gönderilmez.">
                 <i class="ph-fill ph-shield-check"></i>
                 <span>%100 İstemci Taraflı & Çevrimdışı</span>
@@ -72,6 +76,14 @@
             <button class="action-btn secondary" id="btnExportTxt" title="Düz metin (.txt) olarak indir">
                 <i class="ph ph-file-text"></i>
                 <span>Metin (.txt)</span>
+            </button>
+            <button class="action-btn secondary" id="btnExportMd" title="Markdown (.md) formatında indir (LLM / RAG uyumlu)">
+                <i class="ph ph-markdown-logo"></i>
+                <span>Markdown (.md)</span>
+            </button>
+            <button class="action-btn secondary" id="btnExportRagJson" title="Yapay zeka (LLM / RAG) için yapısal JSON olarak indir">
+                <i class="ph ph-brackets-curly"></i>
+                <span>RAG JSON</span>
             </button>
         </div>
 
@@ -298,7 +310,8 @@
     <script src="https://cdn.jsdelivr.net/npm/utif@3.0.1/UTIF.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
-    <!-- UI & Templates -->
+    <!-- UI & Templates & Markdown/RAG -->
+    <script src="js/udf-markdown.js"></script>
     <script src="js/templates.js"></script>
     <script src="js/editor-ui.js"></script>
 </body>
