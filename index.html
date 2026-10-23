@@ -21,7 +21,7 @@
             <div class="app-logo">
                 <i class="ph-fill ph-scales" style="font-size: 1.4rem; color: #60a5fa;"></i>
                 <span>UYAP Web UDF</span>
-                <span class="badge">v1.1</span>
+                <span class="badge">v1.4</span>
             </div>
 
             <div class="doc-title-wrapper" title="Belge Adını Düzenle">
@@ -68,6 +68,10 @@
             <button class="action-btn success" id="btnExportUdf" title="Resmi UYAP uyumlu UDF formatında indir (Ctrl+S)">
                 <i class="ph ph-download-simple"></i>
                 <span>UDF İndir</span>
+            </button>
+            <button class="action-btn eimza" id="btnSignUdf" title="CAdES-BES / 5070 Sayılı Kanuna uygun Nitelikli E-İmza ile İmzala ve İndir">
+                <i class="ph ph-pen-nib"></i>
+                <span>E-İmza ile İmzala</span>
             </button>
             <button class="action-btn primary" id="btnPrintPdf" title="A4 boyutunda PDF olarak kaydet veya yazdır (Ctrl+P)">
                 <i class="ph ph-printer"></i>
@@ -170,6 +174,17 @@
     <!-- A4 Çalışma Alanı (Viewport) -->
     <main class="editor-viewport">
         <div class="page-wrapper" id="pageWrapper">
+            <!-- İmzalı Belge Bilgi Çubuğu (Varsayılan gizli) -->
+            <div id="signedDocBanner" class="signed-doc-banner" style="display: none;">
+                <div class="banner-left">
+                    <i class="ph-fill ph-seal-check"></i>
+                    <span id="signedDocText">Bu belge Nitelikli Elektronik Sertifika (E-İmza) ile imzalanmıştır.</span>
+                </div>
+                <div class="banner-right">
+                    <span class="signer-tag" id="signedDocSigner"></span>
+                </div>
+            </div>
+
             <!-- Düzenlenebilir Gerçek A4 Sayfası -->
             <div id="udfEditor" class="udf-page" contenteditable="true" spellcheck="false"></div>
         </div>
@@ -293,11 +308,91 @@
         </div>
     </dialog>
 
+    <!-- 4. E-İmza Modalı -->
+    <dialog id="signModal" class="modal">
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="ph-fill ph-pen-nib" style="color: #059669;"></i>
+                <span>UYAP E-İmza ile Belge İmzalama</span>
+            </div>
+            <button class="modal-close" data-close-modal title="Kapat"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="modal-body" style="font-size: 0.9rem;">
+            <!-- Yerel Ajan Algılama Durumu -->
+            <div id="signerAgentStatus" class="signer-agent-box">
+                <i class="ph ph-circle-notch ph-spin" id="agentStatusIcon"></i>
+                <span id="agentStatusText">Yerel E-İmza Ajanı aranıyor (ArkSigner / WebPKI / Kamu SM)...</span>
+            </div>
+
+            <div class="form-group" style="margin-top: 14px;">
+                <label for="signCaProvider"><b>Elektronik Sertifika Sağlayıcısı (ESHS):</b></label>
+                <select id="signCaProvider" class="form-input">
+                    <option value="kamu_sm">TÜBİTAK Kamu SM (Kamu Sertifikasyon Merkezi)</option>
+                    <option value="turktrust">TÜRKTRUST Bilgi İletişim ve Bilişim Güvenliği</option>
+                    <option value="e_guven">E-Güven Elektronik Bilgi Güvenliği</option>
+                    <option value="e_tugra">E-Tuğra EBG Bilişim Teknolojileri</option>
+                    <option value="tnb_kep">TNBE-İmza (Türkiye Noterler Birliği)</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label for="signerName"><b>İmzalayan Ad Soyad:</b></label>
+                    <input type="text" id="signerName" class="form-input" value="Av. Mehmet Kaya" placeholder="Ad Soyad">
+                </div>
+                <div class="form-group">
+                    <label for="signerRole"><b>Görevi / Sıfatı:</b></label>
+                    <select id="signerRole" class="form-input">
+                        <option value="Avukat / Vekil">Avukat / Vekil</option>
+                        <option value="Davacı / Talep Eden">Davacı / Talep Eden</option>
+                        <option value="Davalı">Davalı</option>
+                        <option value="Bilirkişi">Bilirkişi</option>
+                        <option value="Uzlaştırmacı">Uzlaştırmacı</option>
+                        <option value="Hâkim / Mahkeme Heyeti">Hâkim / Mahkeme Heyeti</option>
+                        <option value="Zabıt Kâtibi">Zabıt Kâtibi</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label for="signerTc"><b>T.C. Kimlik / Sicil No:</b></label>
+                    <input type="text" id="signerTc" class="form-input" value="12345678901" maxlength="11" placeholder="T.C. Kimlik No">
+                </div>
+                <div class="form-group">
+                    <label for="signerBaroSicil"><b>Baro Sicil No:</b></label>
+                    <input type="text" id="signerBaroSicil" class="form-input" value="İst-42891" placeholder="Örn: Ank-12345">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="signerPin"><b>Akıllı Kart PIN Kodu:</b></label>
+                <input type="password" id="signerPin" class="form-input" placeholder="••••••" maxlength="8">
+                <small style="color: #64748b; font-size: 0.78rem;">PIN kodunuz tarayıcıda yerel olarak işlenir ve hiçbir yere aktarılmaz.</small>
+            </div>
+
+            <div class="form-check" style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                <input type="checkbox" id="signIncludeTimestamp" checked>
+                <label for="signIncludeTimestamp" style="font-size: 0.85rem; cursor: pointer;">
+                    <b>CAdES-T Zaman Damgası Ekle (RFC 3161)</b> - Belgenin imza anını kesinleştirir.
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="action-btn secondary" data-close-modal>Vazgeç</button>
+            <button class="action-btn eimza" id="btnExecuteSign">
+                <i class="ph ph-pen-nib"></i>
+                <span>İmzala ve UDF İndir</span>
+            </button>
+        </div>
+    </dialog>
+
     <!-- JavaScript Kütüphaneleri -->
     <!-- UDF / ZIP -->
     <script src="js/jszip.min.js"></script>
     <script src="js/udf-parser.js"></script>
     <script src="js/udf-generator.js"></script>
+    <script src="js/udf-signer.js"></script>
     
     <!-- DOCX Desteği (Mammoth) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>

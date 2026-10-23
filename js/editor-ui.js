@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const templateModal = document.getElementById("templateModal");
     const tableModal = document.getElementById("tableModal");
     const aboutModal = document.getElementById("aboutModal");
+    const signModal = document.getElementById("signModal");
 
     // Yakınlaştırma (Zoom) durumu
     let currentZoom = 1.0;
@@ -325,6 +326,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 showLoading("UDF/XML İşleniyor", "Dosya parse ediliyor...");
                 const result = await window.UdfParser.parse(file);
                 editor.innerHTML = result.html;
+
+                // E-İmzalı belge kontrolü ve üst bant güncelleme
+                const banner = document.getElementById("signedDocBanner");
+                const signerTag = document.getElementById("signedDocSigner");
+                if (banner && signerTag) {
+                    if (result.metadata && result.metadata.isSigned && result.metadata.signers && result.metadata.signers.length > 0) {
+                        const firstSigner = result.metadata.signers[0];
+                        signerTag.textContent = `${firstSigner.name} (${firstSigner.role || 'İmzalayan'})`;
+                        banner.style.display = "flex";
+                    } else {
+                        banner.style.display = "none";
+                    }
+                }
             } 
             else if (name.endsWith(".docx")) {
                 showLoading("DOCX İşleniyor", "Word belgesi dönüştürülüyor...");
@@ -421,6 +435,106 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // E-İmza ile İmzala & İndir (Issue #1)
+    const btnSignUdf = document.getElementById("btnSignUdf");
+    const btnExecuteSign = document.getElementById("btnExecuteSign");
+    const signerAgentStatus = document.getElementById("signerAgentStatus");
+    const agentStatusIcon = document.getElementById("agentStatusIcon");
+    const agentStatusText = document.getElementById("agentStatusText");
+
+    if (btnSignUdf && signModal) {
+        btnSignUdf.addEventListener("click", async () => {
+            signModal.showModal();
+
+            // Yerel E-İmza Ajanını yokla
+            if (window.UdfSigner && signerAgentStatus) {
+                signerAgentStatus.className = "signer-agent-box";
+                if (agentStatusIcon) agentStatusIcon.className = "ph ph-circle-notch ph-spin";
+                if (agentStatusText) agentStatusText.textContent = "Yerel E-İmza Ajanı aranıyor (ArkSigner / WebPKI / Kamu SM)...";
+
+                try {
+                    const probeResult = await window.UdfSigner.probeLocalhostAgent(1000);
+                    if (probeResult.detected) {
+                        signerAgentStatus.className = "signer-agent-box success";
+                        if (agentStatusIcon) agentStatusIcon.className = "ph-fill ph-check-circle";
+                        if (agentStatusText) agentStatusText.textContent = `${probeResult.agentName} algılandı (${probeResult.port} portu hazır).`;
+                    } else {
+                        signerAgentStatus.className = "signer-agent-box warning";
+                        if (agentStatusIcon) agentStatusIcon.className = "ph-fill ph-info";
+                        if (agentStatusText) agentStatusText.textContent = "Yerel e-İmza ajanı çevrimdışı. Doğrudan tarayıcı/yazılımsal sertifika modu devrede.";
+                    }
+                } catch (e) {
+                    signerAgentStatus.className = "signer-agent-box warning";
+                    if (agentStatusIcon) agentStatusIcon.className = "ph-fill ph-warning";
+                    if (agentStatusText) agentStatusText.textContent = "Ajan yoklama tamamlandı. Doğrudan sertifika modu kullanılabilir.";
+                }
+            }
+        });
+    }
+
+    if (btnExecuteSign && signModal) {
+        btnExecuteSign.addEventListener("click", async () => {
+            const signerName = (document.getElementById("signerName")?.value || "").trim();
+            const signerRole = document.getElementById("signerRole")?.value || "Avukat / Vekil";
+            const signerTc = (document.getElementById("signerTc")?.value || "").trim();
+            const signerBaroSicil = (document.getElementById("signerBaroSicil")?.value || "").trim();
+            const signCaProvider = document.getElementById("signCaProvider")?.value || "kamu_sm";
+            const includeTimestamp = document.getElementById("signIncludeTimestamp")?.checked ?? true;
+
+            if (!signerName) {
+                showToast("Lütfen imzalayan ad ve soyadını giriniz.", "error");
+                return;
+            }
+            if (signerTc.length !== 11 || !/^\d+$/.test(signerTc)) {
+                showToast("Lütfen 11 haneli geçerli bir T.C. Kimlik Numarası giriniz.", "error");
+                return;
+            }
+
+            try {
+                showLoading("E-İmza Paketi Hazırlanıyor", "CAdES-BES & XML-DSIG zarflaması yapılıyor...");
+
+                // ESHS Sağlayıcı adını bul
+                const caKey = signCaProvider.toUpperCase();
+                const providerInfo = window.UdfSigner?.CERT_PROVIDERS?.[caKey] || window.UdfSigner?.CERT_PROVIDERS?.KAMU_SM;
+                const issuerName = providerInfo?.name || "TÜBİTAK Kamu SM Nitelikli Elektronik Sertifika Hizmet Sağlayıcısı";
+
+                // UDF XML verisini üret
+                const rawXml = window.UdfGenerator.htmlToUdfXml(editor);
+
+                // İmzalı UDF paketini üret
+                const signedBlob = await window.UdfSigner.createSignedUdfPackage(rawXml, {
+                    name: signerName,
+                    role: signerRole,
+                    tcNo: signerTc,
+                    baroSicil: signerBaroSicil,
+                    issuer: issuerName,
+                    includeTimestamp: includeTimestamp
+                });
+
+                // Dosya adını belirle ve indir
+                const baseName = docTitleInput.value.trim() || "belge";
+                const filename = `${baseName}_eimzali.udf`;
+                window.UdfGenerator.downloadUdf(signedBlob, filename);
+
+                // İmzalı belge üst bilgi çubuğunu güncelle ve göster
+                const banner = document.getElementById("signedDocBanner");
+                const signerTag = document.getElementById("signedDocSigner");
+                if (banner && signerTag) {
+                    signerTag.textContent = `${signerName} (${signerRole})`;
+                    banner.style.display = "flex";
+                }
+
+                signModal.close();
+                hideLoading();
+                showToast(`"${filename}" başarıyla imzalandı ve indirildi.`, "success");
+            } catch (err) {
+                console.error("E-İmza Hatası:", err);
+                hideLoading();
+                showToast("E-İmza oluşturulamadı: " + err.message, "error");
+            }
+        });
+    }
+
     // PDF / Yazdır
     const btnPrintPdf = document.getElementById("btnPrintPdf");
     if (btnPrintPdf) {
@@ -502,6 +616,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (confirm("Mevcut belgeniz temizlenecektir. Emin misiniz?")) {
                 editor.innerHTML = '<p><br></p>';
                 docTitleInput.value = "Yeni_Dilekce";
+                const banner = document.getElementById("signedDocBanner");
+                if (banner) banner.style.display = "none";
                 updateStats();
                 showToast("Yeni boş belge oluşturuldu.", "info");
             }
@@ -608,7 +724,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Modal Dışına Tıklayınca Kapatma
-    [templateModal, tableModal, aboutModal].forEach(modal => {
+    [templateModal, tableModal, aboutModal, signModal].forEach(modal => {
         if (modal) {
             modal.addEventListener("click", (e) => {
                 const rect = modal.getBoundingClientRect();

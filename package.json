@@ -1,7 +1,7 @@
 {
   "name": "uyap-web-udf-editor",
-  "version": "1.3.0",
-  "description": "100% tarayıcı tabanlı, Java gerektirmeyen açık kaynak UYAP UDF editörü, Markdown/RAG dışa aktarıcı ve Dark Mode desteği",
+  "version": "1.4.0",
+  "description": "100% tarayıcı tabanlı, Java gerektirmeyen açık kaynak UYAP UDF editörü, E-İmza (CAdES/XML-DSIG), Markdown/RAG dışa aktarıcı ve Dark Mode desteği",
   "main": "index.html",
   "scripts": {
     "test": "node test/test-udf.js"
@@ -11,6 +11,9 @@
     "udf",
     "editor",
     "legaltech",
+    "e-imza",
+    "cades",
+    "xml-dsig",
     "markdown",
     "rag",
     "dark-mode",

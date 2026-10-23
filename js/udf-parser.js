@@ -3,7 +3,8 @@
  * %100 İstemci Taraflı (Client-side) ZIP ve XML Çözücü
  */
 
-window.UdfParser = {
+(function(global) {
+const UdfParser = {
     /**
      * UDF dosyasını ayrıştırır ve zengin HTML çıktısı üretir
      * @param {File|Blob|ArrayBuffer} inputData - UDF dosya verisi
@@ -104,6 +105,29 @@ window.UdfParser = {
                     bottomMargin: pageFormat.getAttribute("bottomMargin") || "70.86",
                 };
             }
+        }
+
+        // E-İmza (signers) bilgilerini ayrıştır
+        metadata.signers = [];
+        const signersNode = xmlDoc.querySelector("signers");
+        if (signersNode) {
+            const signerList = signersNode.querySelectorAll("signer");
+            signerList.forEach(s => {
+                metadata.signers.push({
+                    name: s.getAttribute("name") || "",
+                    role: s.getAttribute("role") || "",
+                    tcNo: s.getAttribute("tcNo") || "",
+                    baroSicil: s.getAttribute("baroSicil") || "",
+                    issuer: s.getAttribute("issuer") || "",
+                    serialNumber: s.getAttribute("serialNumber") || "",
+                    date: s.getAttribute("date") || "",
+                    algorithm: s.getAttribute("algorithm") || "RSA-SHA256",
+                    policy: s.getAttribute("policy") || ""
+                });
+            });
+            metadata.isSigned = metadata.signers.length > 0;
+        } else {
+            metadata.isSigned = false;
         }
 
         let htmlOutput = "";
@@ -271,3 +295,11 @@ window.UdfParser = {
             .replace(/'/g, "&#039;");
     }
 };
+
+    if (typeof module !== "undefined" && module.exports) {
+        module.exports = UdfParser;
+    }
+    if (typeof window !== "undefined") {
+        window.UdfParser = UdfParser;
+    }
+})(typeof window !== "undefined" ? window : global);
